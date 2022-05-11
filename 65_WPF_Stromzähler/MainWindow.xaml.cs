@@ -22,8 +22,9 @@ namespace _65_WPF_Stromzähler
             RefreshTable();
         }
 
-        public List<CounterValue> AllDataList { get; set; }
         public Counter Data { get; set; }
+
+        public SzContext context = new SzContext();
 
         //Buttons
         private void cbCounter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -68,14 +69,10 @@ namespace _65_WPF_Stromzähler
         {
             Data = (Counter) TableDb.SelectedValue;
 
-            var connection = new Connection();
+            var queryable = context.Counters.FirstOrDefault(x => x.ID == Data.ID);
 
-            var sqlCmd = "DELETE FROM ECounterValue WHERE ECounterValue.Id = @Id;";
+            context.Counters.Remove(queryable);
 
-            using var con = connection.ConnectionDb();
-            using var cmd = new SqlCommand(sqlCmd, con);
-            cmd.Parameters.AddWithValue("@Id", Data.ID);
-            cmd.ExecuteNonQuery();
             MessageBox.Show("Ihr Datensatz wurde erfolgreich gelöscht.");
             RefreshTable();
         }
@@ -94,18 +91,18 @@ namespace _65_WPF_Stromzähler
         //Methods for this Class
         public void RefreshTable()
         {
-            var id = Counters.FirstOrDefault(c => c.Name == cbCounter.SelectedItem).ID;
+            //var id = Counters.FirstOrDefault(c => c.Name == cbCounter.SelectedItem).ID;
 
-            AllDataList = DisplayTable.loadTable();
+            //AllDataList = DisplayTable.loadTable();
 
-            if (id != 0)
-            {
-                TableDb.ItemsSource = AllDataList.Where(x => x.Id == id);
-            }
-            else
-            {
-                TableDb.ItemsSource = AllDataList;
-            }
+            //if (id != 0)
+            //{
+            //    TableDb.ItemsSource = AllDataList.Where(x => x.Id == id);
+            //}
+            //else
+            //{
+            //    TableDb.ItemsSource = AllDataList;
+            //}
         }
 
         public void RefreshComboBox()
@@ -124,30 +121,10 @@ namespace _65_WPF_Stromzähler
 
         public List<Counter> GetCounterName()
         {
-            var result = new List<Counter>();
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
-
-            var SqlCmd = "SELECT * FROM ECounter;";
-            using var cmd = new SqlCommand(SqlCmd, con);
-            using var reader = cmd.ExecuteReader();
-
-            result.Add(new Counter
+             return context.Counters.Select(x => new Counter
             {
-                ID = 0,
-                Name = "Select all"
-            });
-
-            while (reader.Read())
-            {
-                result.Add(new Counter
-                {
-                    ID = (int) reader["Id"],
-                    Name = (string) reader["name"]
-                });
-            }
-
-            return result;
+                Name = x.Name,
+            }).ToList();
         }
     }
 }

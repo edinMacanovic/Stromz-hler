@@ -13,6 +13,7 @@ namespace _65_WPF_Stromzähler
         private SqlCommand cmd;
         private Counter currentCounter;
         public MainWindow MainWindow = new();
+        private SzContext context = new SzContext();
 
         //Contructor01
         public SecondWindow(string cbSelection = "")
@@ -99,40 +100,40 @@ namespace _65_WPF_Stromzähler
                 return;
             }
 
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
-            string sqlCmd;
+            //var connection = new Connection();
+            //using var con = connection.ConnectionDb();
+            //string sqlCmd;
 
 
-            if (Data != null)
-            {
-                sqlCmd = "UPDATE ECounterValue SET Date = @date, Value = @value, CounterId = @counterId " +
-                         "WHERE Id = @id";
-                cmd = new SqlCommand(sqlCmd, con);
-                cmd.Parameters.AddWithValue("@date", calBoxDate.SelectedDate);
-                cmd.Parameters.AddWithValue("@value", txtBoxCounter.Value);
-                cmd.Parameters.AddWithValue("@id", Data.ID);
-                cmd.Parameters.AddWithValue("@counterId", currentCounter.ID);
-                cmd.ExecuteNonQuery();
-                MessageBox.Show("Ihre Daten wurden Erfolgreich geupdated.");
-            }
-            else
-            {
-                if (currentCounter != null)
-                {
-                    sqlCmd = "INSERT INTO ECounterValue (CounterId, Date, Value) VALUES (@counterId, @date, @value);";
-                    cmd = new SqlCommand(sqlCmd, con);
-                    cmd.Parameters.AddWithValue("@counterId", currentCounter.ID);
-                    cmd.Parameters.AddWithValue("@date", calBoxDate.SelectedDate);
-                    cmd.Parameters.AddWithValue("@value", txtBoxCounter.Value);
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Ihre Daten wurden Erfolgreich gespeichert.");
-                }
-                else
-                {
-                    MessageBox.Show("Bitte zuerst einen Stromzähler anlegen");
-                }
-            }
+            //if (Data != null)
+            //{
+            //    sqlCmd = "UPDATE ECounterValue SET Date = @date, Value = @value, CounterId = @counterId " +
+            //             "WHERE Id = @id";
+            //    cmd = new SqlCommand(sqlCmd, con);
+            //    cmd.Parameters.AddWithValue("@date", calBoxDate.SelectedDate);
+            //    cmd.Parameters.AddWithValue("@value", txtBoxCounter.Value);
+            //    cmd.Parameters.AddWithValue("@id", Data.ID);
+            //    cmd.Parameters.AddWithValue("@counterId", currentCounter.ID);
+            //    cmd.ExecuteNonQuery();
+            //    MessageBox.Show("Ihre Daten wurden Erfolgreich geupdated.");
+            //}
+            //else
+            //{
+            //    if (currentCounter != null)
+            //    {
+            //        sqlCmd = "INSERT INTO ECounterValue (CounterId, Date, Value) VALUES (@counterId, @date, @value);";
+            //        cmd = new SqlCommand(sqlCmd, con);
+            //        cmd.Parameters.AddWithValue("@counterId", currentCounter.ID);
+            //        cmd.Parameters.AddWithValue("@date", calBoxDate.SelectedDate);
+            //        cmd.Parameters.AddWithValue("@value", txtBoxCounter.Value);
+            //        cmd.ExecuteNonQuery();
+            //        MessageBox.Show("Ihre Daten wurden Erfolgreich gespeichert.");
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show("Bitte zuerst einen Stromzähler anlegen");
+            //    }
+            //}
 
             Close();
         }
@@ -146,21 +147,10 @@ namespace _65_WPF_Stromzähler
         //Methods for this Class
         public void GetCounterName()
         {
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
-
-            var sqlCmd = "SELECT * FROM ECounter;";
-            using var cmd = new SqlCommand(sqlCmd, con);
-            var reader = cmd.ExecuteReader();
-
-            while (reader.Read())
+            context.Counters.Select(x => new Counter
             {
-                Counters.Add(new Counter
-                {
-                    ID = (int) reader["Id"],
-                    Name = (string) reader["name"]
-                });
-            }
+                Name = x.Name,
+            });
         }
     }
 }

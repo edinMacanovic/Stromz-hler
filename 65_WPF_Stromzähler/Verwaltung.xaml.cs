@@ -13,7 +13,7 @@ namespace _65_WPF_Stromzähler
         public Verwaltung()
         {
             InitializeComponent();
-            FillUserTable();
+            userTable.ItemsSource = FillUserTable();
         }
 
         private void BtnCreateNewUser(object sender, RoutedEventArgs e)
@@ -26,19 +26,11 @@ namespace _65_WPF_Stromzähler
         //Buttons for this Class
         public List<UserLogin> FillUserTable()
         {
-            var test = context.UserLogins.Select(x => x).ToList();
-
-            var listeUser = new List<UserLogin>();
-
-            foreach (var user in test)
+            return context.UserLogins.Select(x => new UserLogin
             {
-                listeUser.Add(new UserLogin
-                {
-                    Username = user.Username
-                });
-            }
+                Username = x.Username
+            }).ToList();
 
-            return (List<UserLogin>) (userTable.ItemsSource = listeUser);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows;
@@ -14,13 +15,15 @@ namespace _65_WPF_Stromzähler
         public AddNewCounter()
         {
             InitializeComponent();
-            LoadCounterTable();
+            DataContext = this;
+            counterTable.ItemsSource =  LoadCounterTable();
             Value = FillECounterValue();
         }
 
         public int? Value { get; set; }
 
         public List<Counter> Counters { get; set; } = new();
+
         private SzContext context = new SzContext();
 
         public Counter Data { get; set; }
@@ -30,7 +33,7 @@ namespace _65_WPF_Stromzähler
         {
             CounterHinzufügen counterHinzufügen = new();
             counterHinzufügen.ShowDialog();
-            LoadCounterTable();
+            counterTable.ItemsSource = LoadCounterTable();
         }
 
         private void BtnCounterLöschen(object sender, RoutedEventArgs e)
@@ -39,14 +42,9 @@ namespace _65_WPF_Stromzähler
             //using var con = connection.ConnectionDb();
             Data = (Counter) counterTable.SelectedValue;
 
-            var test = context.Counters.FirstOrDefault(x => x.ID == Data.ID);
+            var test = context.Counters.First(x => x.ID == Data.ID);
 
             context.Counters.Remove(test);
-
-            if (test == null)
-            {
-
-            }
 
             //var sqlStringGetAmount = "SELECT count(*) FROM ECounterValue where CounterId = @id";
             //var cmdGetAmount = new SqlCommand(sqlStringGetAmount, con);
@@ -85,6 +83,8 @@ namespace _65_WPF_Stromzähler
             //    }
             //}
 
+            context.SaveChanges();
+            counterTable.ItemsSource = LoadCounterTable();
 
         }
 
@@ -92,42 +92,19 @@ namespace _65_WPF_Stromzähler
         //Methods for this Class
         public List<Counter> LoadCounterTable()
         {
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
-
-            var sqlCmd = "SELECT * FROM ECounter";
-            using var cmd = new SqlCommand(sqlCmd, con);
-            var reader = cmd.ExecuteReader();
-
-            var listeCounter = new List<Counter>();
-
-            while (reader.Read())
+            return context.Counters.Select(x => new Counter
             {
-                listeCounter.Add(new Counter
-                {
-                    ID = reader.GetInt32("id"),
-                    Name = reader.GetString("name")
-                });
-            }
+                ID = x.ID,
+                Name = x.Name,
+            }).ToList();
 
-            return (List<Counter>) (counterTable.ItemsSource = listeCounter);
+
         }
 
         private int? FillECounterValue()
         {
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
+            return context.CounterValues.Select(x => x.Id).FirstOrDefault();
 
-            var sqlCmd = "SELECT * FROM ECounterValue";
-            using var cmd = new SqlCommand(sqlCmd, con);
-            var reader = cmd.ExecuteReader();
-
-            while (reader.Read())
-            {
-                Value = reader.GetInt32("id");
-            }
-
-            return Value;
         }
 
         private void Bearbeiten(object sender, MouseButtonEventArgs e)

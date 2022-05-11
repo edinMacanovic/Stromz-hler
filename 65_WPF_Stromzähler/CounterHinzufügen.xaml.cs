@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
@@ -25,7 +24,6 @@ public partial class CounterHinzufügen
     }
 
     public int? CurrentCounterId { get; set; }
-    public List<Counter> CounterList { get; set; } = new();
 
     public SqlCommand Cmd { get; set; }
 
@@ -38,39 +36,47 @@ public partial class CounterHinzufügen
 
     private void BtnSpeichern(object sender, RoutedEventArgs e)
     {
-        var connection = new Connection();
-        using var con = connection.ConnectionDb();
+        //var connection = new Connection();
+        //using var con = connection.ConnectionDb();
 
-        foreach (var counter in CounterList)
+
+        //foreach (var counter in CounterList)
+        //{
+        //    if (newCounterNameHinzufügen.Text == counter.Name)
+        //    {
+        //       
+        //    }
+
+        //    if (CurrentCounterId == null)
+        //    {
+        //        if (string.IsNullOrEmpty(newCounterNameHinzufügen.Text))
+        //        {
+        //            MessageBox.Show("Bitte geben Sie einen gültigen Namen ein.");
+        //            return;
+        //        }
+
+        //        if (newCounterNameHinzufügen.Text.Length > 15)
+        //        {
+        //            MessageBox.Show("15 Zeichen ist die maximale Zeichenlänge!");
+        //            return;
+        //        }
+        //    }
+        //}
+
+        if (CurrentCounterId == null)
         {
-            if (newCounterNameHinzufügen.Text == counter.Name)
+            if (context.Counters.Any(x => x.Name == newCounterNameHinzufügen.Text))
             {
                 MessageBox.Show("Dieser Name ist bereits vergeben, bitte versuchen Sie es erneut.");
                 return;
             }
 
-            if (CurrentCounterId == null)
-            {
-                if (string.IsNullOrEmpty(newCounterNameHinzufügen.Text))
-                {
-                    MessageBox.Show("Bitte geben Sie einen gültigen Namen ein.");
-                    return;
-                }
-
-                if (newCounterNameHinzufügen.Text.Length > 15)
-                {
-                    MessageBox.Show("15 Zeichen ist die maximale Zeichenlänge!");
-                    return;
-                }
-            }
-        }
-
-        if (CurrentCounterId == null)
-        {
             context.Counters.Add(new Counter
             {
                 Name = newCounterNameHinzufügen.Text
             });
+
+
             context.SaveChanges();
             MessageBox.Show("Ihr Zähler wurde erfolgreich hinzugefügt.");
         }
@@ -87,19 +93,9 @@ public partial class CounterHinzufügen
 
     public void FillCounterList()
     {
-        var connection = new Connection();
-        var con = connection.ConnectionDb();
-        var sqlString = " SELECT * FROM ECounter";
-        var cmd = new SqlCommand(sqlString, con);
-        var reader = cmd.ExecuteReader();
-
-        while (reader.Read())
+        context.Counters.Select(x => new Counter
         {
-            CounterList.Add(new Counter
-            {
-                ID = reader.GetInt32("Id"),
-                Name = reader.GetString("Name")
-            });
-        }
+            Name = x.Name
+        }).ToList();
     }
 }

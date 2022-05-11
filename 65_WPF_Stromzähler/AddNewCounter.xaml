@@ -5,7 +5,8 @@
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  mc:Ignorable="d"
-                 Title="Bearbeiten" Height="325" Width="300" WindowStartupLocation="CenterScreen">
+                 Title="Bearbeiten" Height="325" Width="300" WindowStartupLocation="CenterScreen"
+                 DataContext="local:Counter">
 
     <Grid>
         <Grid.RowDefinitions>

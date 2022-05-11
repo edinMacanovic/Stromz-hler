@@ -13,6 +13,6 @@ public class SzContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(
-            "Server = (localDb)\\MSSQLLocalDb; Database =StromzählerEfCore; Trusted_Connection = True; ");
+            "Server = (localDb)\\MSSQLLocalDb; Database = StromzählerEfCore; Trusted_Connection = True; ");
     }
 }

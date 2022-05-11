@@ -1,11 +1,15 @@
 ﻿using System.Data.SqlClient;
+using System.Linq;
 using System.Windows;
+using StromzählerContext;
 
 namespace _65_WPF_Stromzähler
 {
     public partial class BenutzerRegistrierung
     {
         private readonly ComputeStringToSha256Hash encrypting = new();
+
+        private SzContext context = new SzContext();
 
         public BenutzerRegistrierung()
         {
@@ -17,16 +21,22 @@ namespace _65_WPF_Stromzähler
         {
             var encodedPassword = encrypting.ComputeStringToSha256HashMethod(txtUserPasswordConfirm.Password);
 
-            var sqlCmd = "SELECT * FROM UserLogin WHERE UserName = @name";
-
-            var connection = new Connection();
-            using var con = connection.ConnectionDb();
-            using var cmd = new SqlCommand(sqlCmd, con);
-            cmd.Parameters.AddWithValue("@name", TxtUserNameCreate.Text);
-            var affectedDataSet = cmd.ExecuteScalar();
+            var userLogins = context.UserLogins.Where(x => x.Username == TxtUserNameCreate.Text).ToList();
 
 
-            if (affectedDataSet != null)
+            if (!userLogins.Any())
+            {
+                context.UserLogins.Select(x => new UserLogin
+                {
+                    Username = TxtUserNameCreate.Text,
+                    Password = encodedPassword,
+                });
+
+                MessageBox.Show("Ihr Benutzer wurde angelegt.");
+                Close();
+
+            }
+            else
             {
                 MessageBox.Show("Dieser Benutzer existiert bereits. Bitte geben Sie einen anderen Benutzernamen ein.");
                 TxtUserNameCreate.Clear();
@@ -41,17 +51,6 @@ namespace _65_WPF_Stromzähler
                 txtUserPasswordConfirm.Clear();
                 TxtUserPasswordCreate.Clear();
                 return;
-            }
-
-            if (affectedDataSet == null)
-            {
-                sqlCmd = "INSERT UserLogin (UserName, Password) VALUES(@userName,@pwd)";
-                var cmd2 = new SqlCommand(sqlCmd, con);
-                cmd2.Parameters.AddWithValue("@userName", TxtUserNameCreate.Text);
-                cmd2.Parameters.AddWithValue("@pwd", encodedPassword);
-                cmd2.ExecuteNonQuery();
-                MessageBox.Show("Ihr Benutzer wurde angelegt.");
-                Close();
             }
         }
 
