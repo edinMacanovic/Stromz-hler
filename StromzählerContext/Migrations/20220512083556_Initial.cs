@@ -15,9 +15,7 @@ namespace StromzählerContext.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -37,15 +35,44 @@ namespace StromzählerContext.Migrations
                 {
                     table.PrimaryKey("PK_UserLogins", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "CounterValues",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Value = table.Column<double>(type: "float", nullable: true),
+                    CounterId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CounterValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CounterValues_Counters_CounterId",
+                        column: x => x.CounterId,
+                        principalTable: "Counters",
+                        principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CounterValues_CounterId",
+                table: "CounterValues",
+                column: "CounterId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Counters");
+                name: "CounterValues");
 
             migrationBuilder.DropTable(
                 name: "UserLogins");
+
+            migrationBuilder.DropTable(
+                name: "Counters");
         }
     }
 }

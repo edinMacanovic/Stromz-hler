@@ -20,7 +20,7 @@ namespace _65_WPF_Stromzähler
         {
             BenutzerRegistrierung benutzerRegistrierung = new();
             benutzerRegistrierung.ShowDialog();
-            FillUserTable();
+            userTable.ItemsSource = FillUserTable();
         }
 
         //Buttons for this Class

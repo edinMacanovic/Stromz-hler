@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 using StromzählerContext;
 
 namespace _65_WPF_Stromzähler
@@ -15,16 +16,17 @@ namespace _65_WPF_Stromzähler
         public MainWindow MainWindow = new();
         private SzContext context = new SzContext();
 
+        public List<Counter> Counters { get; set; } = new();
+        public CounterValue CounterValue { get; set; } = new();
+        public char Letter { get; set; }
+
         //Contructor01
         public SecondWindow(string cbSelection = "")
         {
             InitializeComponent();
-            GetCounterName();
             calBoxDate.DisplayDate = DateTime.Now;
 
-            var currentCbSelection = MainWindow.cbCounter.SelectedValue;
-
-            foreach (var counter in Counters)
+            foreach (var counter in GetCounterName())
             {
                 var rb = new RadioButton
                 {
@@ -42,36 +44,45 @@ namespace _65_WPF_Stromzähler
                 radioButtons.Children.Add(rb);
             }
 
+
+
             foreach (RadioButton item in radioButtons.Children)
             {
                 if (cbSelection == item.Content.ToString())
                 {
-                    currentCounter = Counters.FirstOrDefault(x => x.Name == cbSelection);
+                    currentCounter = context.Counters.Select(x => new Counter
+                    {
+                        ID = x.ID,
+                        Name = cbSelection
+                    }).FirstOrDefault();
                 }
             }
         }
 
         //Contructor02
-        public SecondWindow(SQLRetrievedDataList data) : this()
+        public SecondWindow(Counter data) : this()
         {
-            Data = data;
-            txtBoxCounter.Value = Data.Value;
-            calBoxDate.SelectedDate = Data.Date;
+            data = context.Counters.Select(x => new Counter
+            {
+                ID = x.ID,
+                Name = x.Name
+            }).FirstOrDefault();
+
+            txtBoxCounter.Value = CounterValue.Value;
+            calBoxDate.SelectedDate = CounterValue.Date;
 
 
             foreach (RadioButton item in radioButtons.Children)
             {
-                if (item.Content.Equals(Data.Name))
+                if (item.Content.Equals(CounterValue.Name))
                 {
-                    currentCounter = Counters.FirstOrDefault(x => x.ID == Data.CounterId);
+                    currentCounter = context.Counters.FirstOrDefault(x => x.ID == data.ID);
                     item.IsChecked = true;
                 }
             }
         }
 
-        public List<Counter> Counters { get; set; } = new();
-        public SQLRetrievedDataList Data { get; set; }
-        public char Letter { get; set; }
+
 
         //Buttons
         private void btnSpeichern(object sender, RoutedEventArgs e)
@@ -99,6 +110,27 @@ namespace _65_WPF_Stromzähler
                 MessageBox.Show("Bitte geben Sie eine Gültige Zahl ein.");
                 return;
             }
+
+
+
+            context.SaveChanges();
+
+            if (CounterValue.Id != 0)
+            {
+                context.CounterValues.Update(context.);
+            }
+            else
+            {
+                context.CounterValues.Add(new CounterValue
+                {
+                    Name = MainWindow.cbCounter.SelectedValue.ToString(),
+                    CounterId = currentCounter.ID,
+                    Value = txtBoxCounter.Value,
+                    Date = calBoxDate.SelectedDate,
+
+                });
+            }
+
 
             //var connection = new Connection();
             //using var con = connection.ConnectionDb();
@@ -145,12 +177,13 @@ namespace _65_WPF_Stromzähler
         }
 
         //Methods for this Class
-        public void GetCounterName()
+        public List<Counter> GetCounterName()
         {
-            context.Counters.Select(x => new Counter
+            return context.Counters.Select(x => new Counter
             {
+                ID = x.ID,
                 Name = x.Name,
-            });
+            }).ToList();
         }
     }
 }

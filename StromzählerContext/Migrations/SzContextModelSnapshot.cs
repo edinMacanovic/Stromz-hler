@@ -24,11 +24,11 @@ namespace StromzählerContext.Migrations
 
             modelBuilder.Entity("StromzählerContext.Counter", b =>
                 {
-                    b.Property<int?>("ID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("ID"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -46,18 +46,18 @@ namespace StromzählerContext.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CounterId")
+                    b.Property<int?>("CounterId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<double?>("Value")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -91,9 +91,7 @@ namespace StromzählerContext.Migrations
                 {
                     b.HasOne("StromzählerContext.Counter", "Counter")
                         .WithMany("CounterValues")
-                        .HasForeignKey("CounterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CounterId");
 
                     b.Navigation("Counter");
                 });

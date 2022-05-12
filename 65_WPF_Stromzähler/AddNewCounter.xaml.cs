@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Input;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using StromzählerContext;
 
 namespace _65_WPF_Stromzähler

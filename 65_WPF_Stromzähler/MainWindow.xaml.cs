@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.EntityFrameworkCore;
 using StromzählerContext;
 
 namespace _65_WPF_Stromzähler
@@ -14,17 +15,21 @@ namespace _65_WPF_Stromzähler
 
         public LoadTable DisplayTable = new();
 
+        public Counter Counter = new();
+
         //Constructor
         public MainWindow()
         {
             InitializeComponent();
             RefreshComboBox();
-            RefreshTable();
+            TableDb.ItemsSource = RefreshTable();
         }
 
         public Counter Data { get; set; }
 
         public SzContext context = new SzContext();
+
+        public CounterValue CounterValues = new();
 
         //Buttons
         private void cbCounter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -48,7 +53,7 @@ namespace _65_WPF_Stromzähler
         {
             if (TableDb.SelectedValue != null)
             {
-                var secondWindow = new SecondWindow((SQLRetrievedDataList) TableDb.SelectedValue);
+                var secondWindow = new SecondWindow((Counter) TableDb.SelectedValue);
                 secondWindow.Title = "Zählerstand bearbeiten";
                 secondWindow.ShowDialog();
                 RefreshComboBox();
@@ -89,20 +94,16 @@ namespace _65_WPF_Stromzähler
         }
 
         //Methods for this Class
-        public void RefreshTable()
+        public List<CounterValue> RefreshTable()
         {
-            //var id = Counters.FirstOrDefault(c => c.Name == cbCounter.SelectedItem).ID;
+            return context.CounterValues.Include(x=> x.Counter).Select(x => new CounterValue
+            {
+                Id = x.Id,
+                Date = CounterValues.Date,
+                Value = CounterValues.Value,
+                Name = CounterValues.Name,
+            }).ToList();
 
-            //AllDataList = DisplayTable.loadTable();
-
-            //if (id != 0)
-            //{
-            //    TableDb.ItemsSource = AllDataList.Where(x => x.Id == id);
-            //}
-            //else
-            //{
-            //    TableDb.ItemsSource = AllDataList;
-            //}
         }
 
         public void RefreshComboBox()
@@ -123,6 +124,7 @@ namespace _65_WPF_Stromzähler
         {
              return context.Counters.Select(x => new Counter
             {
+                ID = x.ID,
                 Name = x.Name,
             }).ToList();
         }

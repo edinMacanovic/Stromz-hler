@@ -1,4 +1,7 @@
-﻿namespace StromzählerContext;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace StromzählerContext;
 
 public class UserLogin
 {

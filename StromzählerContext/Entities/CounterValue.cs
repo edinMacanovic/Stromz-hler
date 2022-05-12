@@ -4,8 +4,8 @@ public class CounterValue
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public DateTime Date { get; set; }
-    public int Value { get; set; }
+    public DateTime? Date { get; set; }
+    public double? Value { get; set; }
     public Counter Counter { get; set; }
-    public int CounterId { get; set; }
+    public int? CounterId { get; set; }
 }
